@@ -1,5 +1,5 @@
 import config
-
+import asyncio
 import tiktoken
 import openai
 
@@ -35,19 +35,21 @@ class ChatGPT:
             try:
                 if self.model in {"gpt-3.5-turbo-16k", "gpt-3.5-turbo", "gpt-4", "gpt-4-1106-preview"}:
                     messages = self._generate_prompt_messages(message, dialog_messages, chat_mode)
-                    r = await openai.ChatCompletion.acreate(
+                    r = openai.ChatCompletion.create(
                         model=self.model,
                         messages=messages,
                         **OPENAI_COMPLETION_OPTIONS
                     )
+                    await asyncio.sleep(1)
                     answer = r.choices[0].message["content"]
                 elif self.model == "text-davinci-003":
                     prompt = self._generate_prompt(message, dialog_messages, chat_mode)
-                    r = await openai.Completion.acreate(
+                    r = await openai.Completion.create(
                         engine=self.model,
                         prompt=prompt,
                         **OPENAI_COMPLETION_OPTIONS
                     )
+                    await asyncio.sleep(1)
                     answer = r.choices[0].text
                 else:
                     raise ValueError(f"Unknown model: {self.model}")
